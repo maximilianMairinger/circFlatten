@@ -1,20 +1,13 @@
-import { flatten } from "../../app/src/circFlatten"
+import { flatten, unflatten } from "../../app/src/circFlatten"
 //const testElem = document.querySelector("#test")
 
 
 const ob = {
-  a: 1,
-  b: {
-    c: 2,
-    d: {
-      q: 3,
-      b: undefined
-    }
-  },
-  d: undefined 
+  "a": 1,
+  "b.c": 2,
+  "b.d.d": 3,
+  "b.d.ob.0": 2    
 }
 
-ob.b.d.b = ob.b
-ob.d = ob.b.d
 
-console.log(flatten(ob))
+console.log(unflatten(ob))

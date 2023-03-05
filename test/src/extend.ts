@@ -22,9 +22,10 @@ function eq(exp, ...got) {
     }
   }
 
+
   return {
     pass,
-    message: () => `Expected ${this.utils.printReceived(clone(exp))} to be depply equal to ${this.utils.printExpected(clone(got))}`,
+    message: () => `Expected ${this.utils.printReceived(clone(exp))} to be depply equal to ${got.map((got) => this.utils.printExpected(clone(got))).join(" or ")}`,
   }
 }
 

@@ -35,6 +35,7 @@ function cloneAndIgnoreDeeperCircRef(ob: object) {
   const myRet: any = {}
   let goDeeper = {}
   for (const key in ob) {
+    if (key === "__proto__") continue
     const val = ob[key]
     if (typeof val === "object" && val !== null) {
       goDeeper[key] = val
@@ -66,6 +67,54 @@ function cloneAndIgnoreDeeperCircRef(ob: object) {
 
 export default flatten
 
-export function unflatten() {
 
+function escapedKeyToKeyArr(key: string, delimiter = ".") {
+  let cur = ""
+  let ret = [] as string[]
+  let i = 0
+  while (i < key.length) {
+    if (key[i] === "\\") {
+      if (key[i + 1] === "\\") {
+        cur += "\\"
+        i += 2
+      }
+      else if (key[i + 1] === delimiter) {
+        cur += delimiter
+        i += 2
+      }
+      else {
+        cur += key[i]
+        i++
+      }
+    }
+    else if (key[i] === delimiter) {
+      ret.push(cur)
+      cur = ""
+      i++
+    }
+    else {
+      cur += key[i]
+      i++
+    }
+  }
+  ret.push(cur)
+  return ret
+}
+
+export function unflatten(ob: {[key in string]: unknown}, delimiter = ".") {
+  const ret: any = {}
+  for (const key in ob) {
+    const val = ob[key]
+    const keys = escapedKeyToKeyArr(key, delimiter)
+    
+    if (keys.includes("__proto__")) continue
+    let cur = ret
+    for (let i = 0; i < keys.length-1; i++) {
+      const curKey = keys[i] 
+      if (cur[curKey] === undefined) cur[curKey] = {}
+      cur = cur[curKey]
+    }
+    cur[keys[keys.length-1]] = val
+  }
+  return ret
 }

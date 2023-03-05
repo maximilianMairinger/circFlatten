@@ -1,9 +1,9 @@
-import { flatten } from "../../app/src/circFlatten"
+import { flatten, unflatten } from "../../app/src/circFlatten"
 import "./extend"
 
 describe("flatten", () => {
 
-  test("simple recursion", () => {
+  test("recursion", () => {
     const ob = {
       a: 1,
       b: {
@@ -241,3 +241,118 @@ describe("flatten", () => {
   
 })
 
+
+describe("unflatten", () => {
+
+  test("recursion", () => {
+    const ob = {
+      "a": 1,
+      "b.c": 2
+    }
+    
+    expect(unflatten(ob)).eq({
+      a: 1,
+      b: {
+        c: 2
+      }
+    })
+    
+  })
+
+  test("non recursion", () => {
+    const ob = {
+      "a": 1,
+      "b.c": 2,
+      "b.d.d": 3
+    }
+    
+    expect(unflatten(ob)).eq({
+      a: 1,
+      b: {
+        c: 2,
+        d: {
+          d: 3
+        }
+      }
+    })
+  })
+
+  test("escaping", () => {
+    const ob = {
+      "a\\.a": 1,
+      "b\\.b.c\\.c": 2,
+      "b\\.b.d\\.d.d\\.d": 3
+    }
+
+    expect(unflatten(ob)).eq({
+      "a.a": 1,
+      "b.b": {
+        "c.c": 2,
+        "d.d": {
+          "d.d": 3
+        }
+      }
+    })
+  })
+
+  test("escaping recursive", () => {
+    const ob = {
+      "a\\.a": 1,
+      "b\\.b.c\\.c": 2,
+      "b\\.b.d\\.d.d\\.d": 3
+    }
+
+    expect(unflatten(ob)).eq({
+      "a.a": 1,
+      "b.b": {
+        "c.c": 2,
+        "d.d": {
+          "d.d": 3
+        }
+      }
+    })
+  })
+
+
+  test("undefined and null shoudld be reflected", () => {
+    const ob = {
+      "a": 1,
+      "b.c": 2,
+      "b.d.d": 3,
+      "b.d.ob": null,
+      "e": undefined
+    }
+
+    expect(unflatten(ob)).eq({
+      a: 1,
+      b: {
+        c: 2,
+        d: {
+          d: 3,
+          ob: null
+        }
+      },
+      e: undefined
+    })
+  })
+
+  test("array should be treated as object", () => {
+    const ob = {
+      "a": 1,
+      "b.c": 2,
+      "b.d.d": 3,
+      "b.d.ob.0": 2    
+    }
+
+    expect(unflatten(ob)).eq({
+      a: 1,
+      b: {
+        c: 2,
+        d: {
+          d: 3,
+          ob: {0: 2}
+        }
+      }
+    })
+  })
+})
